@@ -1,0 +1,32 @@
+                    SNSMC Additional Terms
+
+ Copyright (C) 2017  Yu Xuanchi <https://github.com/yuxuanchiadm>.
+ Changing this license not allowed.
+
+                       TERMS AND CONDITIONS
+  0. Definitions.
+
+  "Additional Terms" refers to "Permissions", "Limitations",
+"Conditions" etc. add to materials of this program under GPLv3 section 7.
+
+  1. Legal notices.
+  
+  You are required to preserve any copyright notices, authors notices
+and/or any other legal notices add by copyright holders of this program.
+
+  2. Misrepresentation.
+  
+  You are required to NOT misrepresentation the origin of this program.
+And any modified covered work should be marked in reasonable ways as
+different from the original work.
+
+  3. Publicity purpose.
+
+  You are required to NOT use names of licensors or authors of this program.
+You should contact authors of this program to acquire permission.
+
+                     END OF TERMS AND CONDITIONS
+
+  Feel free to contact to acquire any reasonable permissions, other licenses
+ets. for reasonable purpose if prohibited by GPLv3 or additional terms. Although
+GPLv3 is pretty "free" licenses.

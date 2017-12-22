@@ -1,0 +1,22 @@
+snsmc:
+  database:
+    driver: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/minecraft
+    user: root
+    password: root
+    tablePrefix: snsmc
+    generateDDL: false
+  holo:
+    maxTrackingRange: 10
+    updateFrequency: 20
+  label:
+    maxWidth: 64
+    maxLine: 8
+  topic:
+    states:
+    - name: planning
+      translateKey: topic.state.planning
+    - name: constructing
+      translateKey: topic.state.constructing
+    - name: completed
+      translateKey: topic.state.completed
