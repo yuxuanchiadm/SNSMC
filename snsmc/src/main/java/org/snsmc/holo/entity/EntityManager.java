@@ -33,6 +33,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.snsmc.Main;
 import org.snsmc.packetwrapper.WrapperPlayClientUseEntity;
+import org.snsmc.util.Voodoo;
 
 import com.comphenix.protocol.wrappers.EnumWrappers.EntityUseAction;
 import com.comphenix.protocol.wrappers.EnumWrappers.Hand;
@@ -124,11 +125,6 @@ public class EntityManager {
 		entities.stream().filter(entity -> entity.isTracked(player)).forEach(entity -> entity.untrack(player));
 	}
 
-	public void onPlayerTeleport(Player player) {
-		Main.getInstance().getServer().getScheduler().runTaskLater(Main.getInstance(), () -> entities.stream()
-			.forEach(entity -> entity.getTrackedPlayers().stream().forEach(entity::sendSpawnPacket)), 20);
-	}
-
 	public boolean onPlayerUseEntity(Player player, WrapperPlayClientUseEntity packet) {
 		int entityID = packet.getTargetID();
 		EntityUseAction action = packet.getType();
@@ -154,6 +150,8 @@ public class EntityManager {
 		if (!entity.getLocation().getWorld().equals(player.getLocation().getWorld()))
 			return false;
 		if (!entity.getVisibilityPredicate().test(player))
+			return false;
+		if (!Voodoo.isPlayerWatchingChunk(player, entity.getLocation().getChunk()))
 			return false;
 		double x = player.getLocation().getX() - entity.getLocation().getX();
 		double z = player.getLocation().getZ() - entity.getLocation().getZ();

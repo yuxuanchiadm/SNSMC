@@ -25,7 +25,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
 import org.snsmc.Main;
 
 public class PlayerListener implements Listener {
@@ -39,10 +38,5 @@ public class PlayerListener implements Listener {
 	public void onPlayerQuit(PlayerQuitEvent event) {
 		Main.getInstance().getEntityManager().onPlayerQuit(event.getPlayer());
 		Main.getInstance().getSNSManager().onPlayerQuit(event.getPlayer());
-	}
-
-	@EventHandler
-	public void onPlayerTeleport(PlayerTeleportEvent event) {
-		Main.getInstance().getEntityManager().onPlayerTeleport(event.getPlayer());
 	}
 }
