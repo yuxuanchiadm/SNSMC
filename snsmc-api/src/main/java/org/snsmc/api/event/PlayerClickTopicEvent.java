@@ -19,10 +19,32 @@
  * should have received a copy of those additional terms. Contact
  * author of this program if not.
  */
-package org.snsmc.api.sns;
+package org.snsmc.api.event;
 
 import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.player.PlayerEvent;
+import org.snsmc.api.sns.SNSTopicHandle;
 
-public interface SNSListener {
-	void onClickTopic(Player player, SNSTopicHandle topicHandle);
+public class PlayerClickTopicEvent extends PlayerEvent {
+	private static final HandlerList handlers = new HandlerList();
+	private final SNSTopicHandle topicHandle;
+
+	public PlayerClickTopicEvent(Player player, SNSTopicHandle topicHandle) {
+		super(player);
+		this.topicHandle = topicHandle;
+	}
+
+	public SNSTopicHandle getTopicHandle() {
+		return topicHandle;
+	}
+
+	@Override
+	public HandlerList getHandlers() {
+		return handlers;
+	}
+
+	public static HandlerList getHandlerList() {
+		return handlers;
+	}
 }

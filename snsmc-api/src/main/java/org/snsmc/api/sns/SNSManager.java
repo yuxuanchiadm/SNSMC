@@ -39,7 +39,5 @@ public interface SNSManager {
 
 	Optional<SNSReplyHandle> getReply(long id);
 
-	void registerSNSListener(SNSListener snsListener);
-
 	void refresh();
 }

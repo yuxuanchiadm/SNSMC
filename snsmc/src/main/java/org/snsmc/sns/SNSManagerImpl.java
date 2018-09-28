@@ -23,11 +23,9 @@ package org.snsmc.sns;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -38,11 +36,11 @@ import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.snsmc.Main;
+import org.snsmc.api.event.PlayerClickTopicEvent;
 import org.snsmc.api.persist.listing.ListingOrder;
 import org.snsmc.api.persist.listing.ListingOrderField;
 import org.snsmc.api.persist.search.Filter;
 import org.snsmc.api.persist.search.Sorter;
-import org.snsmc.api.sns.SNSListener;
 import org.snsmc.api.sns.SNSManager;
 import org.snsmc.api.sns.SNSReplyHandle;
 import org.snsmc.api.sns.SNSTopicHandle;
@@ -63,14 +61,12 @@ public class SNSManagerImpl implements SNSManager {
 	private final TopicManager topicManager;
 	private final Map<TopicRef, Map<Locale, Hologram>> topicsMap;
 	private final Map<Player, Set<TopicState>> playerInvisibleTopics;
-	private final List<SNSListener> listeners;
 
 	public SNSManagerImpl(HologramManager hologramManager, TopicManager topicManager) {
 		this.hologramManager = hologramManager;
 		this.topicManager = topicManager;
 		this.topicsMap = new HashMap<>();
 		this.playerInvisibleTopics = new HashMap<>();
-		this.listeners = new ArrayList<>();
 		refresh();
 	}
 
@@ -132,11 +128,6 @@ public class SNSManagerImpl implements SNSManager {
 	}
 
 	@Override
-	public void registerSNSListener(SNSListener snsListener) {
-		listeners.add(snsListener);
-	}
-
-	@Override
 	public void refresh() {
 		topicsMap.values().stream()
 			.forEach(holograms -> holograms.values().stream().forEach(hologramManager::removeHologram));
@@ -163,8 +154,8 @@ public class SNSManagerImpl implements SNSManager {
 		hologram.registerHologramListener(new HologramListener() {
 			@Override
 			public void onInteract(Player player, Hologram hologram) {
-				listeners.stream()
-					.forEach(listener -> listener.onClickTopic(player, new SNSTopicHandleImpl(SNSManagerImpl.this, topicRef)));
+				Main.getInstance().getServer().getPluginManager().callEvent(
+					new PlayerClickTopicEvent(player, new SNSTopicHandleImpl(SNSManagerImpl.this, topicRef)));
 			}
 		});
 		return hologram;
@@ -209,10 +200,12 @@ public class SNSManagerImpl implements SNSManager {
 				.toString();
 		// @formatter:on
 	}
-	
-	private LineTruncator generateHologramReply(LineTruncator lineTruncator, TopicRef topicRef, Locale locale, int labelMaxWidth, int replyMaxLine) {
-		topicRef.listingReply(ListingOrderField.CREATE_TIME, ListingOrder.DESC, 0, replyMaxLine).stream().forEachOrdered(replyRef -> {
-			String creatorName = Optional.ofNullable(replyRef.getCreator().getName()).orElse("<UNKNOWN>");
+
+	private LineTruncator generateHologramReply(LineTruncator lineTruncator, TopicRef topicRef, Locale locale,
+		int labelMaxWidth, int replyMaxLine) {
+		topicRef.listingReply(ListingOrderField.CREATE_TIME, ListingOrder.DESC, 0, replyMaxLine).stream()
+			.forEachOrdered(replyRef -> {
+				String creatorName = Optional.ofNullable(replyRef.getCreator().getName()).orElse("<UNKNOWN>");
 			// @formatter:off
 			lineTruncator
 				.append(new LineFormatter(labelMaxWidth, false, true)
@@ -225,7 +218,7 @@ public class SNSManagerImpl implements SNSManager {
 					.append(ChatColor.RESET.toString())
 				.toString());
 			// @formatter:on
-		});
+			});
 		return lineTruncator;
 	}
 
