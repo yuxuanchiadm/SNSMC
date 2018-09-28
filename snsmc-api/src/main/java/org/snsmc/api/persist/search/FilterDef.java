@@ -27,7 +27,7 @@ import org.bukkit.OfflinePlayer;
 import org.snsmc.api.util.Initializer;
 
 public interface FilterDef<P> {
-	static <R extends FilterInitial<Filter> & FilterTerminate<Filter> & FilterUnaryJuntion<Filter>> R def() {
+	static <R extends FilterInitial<Filter> & FilterUnaryJuntion<Filter>> R def() {
 		return FilterImpl.INITIALIZER.get().def();
 	}
 
@@ -35,10 +35,12 @@ public interface FilterDef<P> {
 	interface FilterImpl {
 		Initializer<FilterImpl> INITIALIZER = new Initializer<>();
 
-		<R extends FilterInitial<Filter> & FilterTerminate<Filter> & FilterUnaryJuntion<Filter>> R def();
+		<R extends FilterInitial<Filter> & FilterUnaryJuntion<Filter>> R def();
 	}
 
 	FilterCondition<P> cond();
+
+	<R extends FilterTerminate<P> & FilterBinaryJuntion<P>> R constant(boolean b);
 
 	abstract class FilterCondition<P> {
 		public final FilterRelation<OfflinePlayer, P> creator;
@@ -82,10 +84,10 @@ public interface FilterDef<P> {
 	}
 
 	interface FilterInitial<P> extends FilterDef<P> {
-		<G extends FilterTerminate<P> & FilterBinaryJuntion<P>, R extends FilterInitial<G> & FilterTerminate<G>> R begin();
+		<G extends FilterTerminate<P> & FilterBinaryJuntion<P>, R extends FilterInitial<G> & FilterUnaryJuntion<G>> R begin();
 	}
 
-	interface FilterTerminate<P> extends FilterDef<P> {
+	interface FilterTerminate<P> {
 		P end();
 	}
 
@@ -111,7 +113,7 @@ public interface FilterDef<P> {
 	}
 
 	interface FilterUnaryJuntion<P> {
-		<R extends FilterInitial<P>> R not();
+		<R extends FilterInitial<P> & FilterUnaryJuntion<P>> R not();
 	}
 
 	interface FilterBinaryJuntion<P> {

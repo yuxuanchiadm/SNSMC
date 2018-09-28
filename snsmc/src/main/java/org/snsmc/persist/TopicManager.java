@@ -82,16 +82,15 @@ public class TopicManager {
 
 	public List<TopicRef> searchTopic(Filter filter, Sorter sorter, int firstTopic, int maxTopic) {
 		// @formatter:off
-		return sorter.<MegaSorter> cast().apply(filter.<MegaFilter<?, ?>> cast().apply(
+		QTopicBean query = sorter.<MegaSorter> cast().apply(filter.<MegaFilter<?, ?>> cast().apply(
 			new QTopicBean(ebeanServer)
 				.select(QTopicBean.alias().id)))
 				.where()
 					.deleted.isFalse()
-				.setFirstRow(firstTopic)
-				.setMaxRows(maxTopic)
-				.findList().stream().flatMap(topicBean -> ofNullable(topics.get(topicBean.getId())))
-					.collect(Collectors.toList());
+					.setFirstRow(firstTopic).setMaxRows(maxTopic);
 		// @formatter:on
+		return query.findList().stream().flatMap(topicBean -> ofNullable(topics.get(topicBean.getId())))
+			.collect(Collectors.toList());
 	}
 
 	public Optional<TopicRef> getTopic(long id) {
@@ -100,16 +99,16 @@ public class TopicManager {
 
 	public Optional<ReplyRef> getReply(long id) {
 		// @formatter:off
-		return new QReplyBean(ebeanServer)
+		QReplyBean query = new QReplyBean(ebeanServer)
 			.select(QReplyBean.alias().topic.id)
 			.where()
 				.id.eq(id)
-				.deleted.isFalse()
-			.findOneOrEmpty().flatMap(replyBean -> {
-				long topicId = replyBean.getTopic().getId();
-				return getTopic(topicId).flatMap(topicRef -> topicRef.getReply(id));
-			});
+				.deleted.isFalse();
 		// @formatter:on
+		return query.findOneOrEmpty().flatMap(replyBean -> {
+			long topicId = replyBean.getTopic().getId();
+			return getTopic(topicId).flatMap(topicRef -> topicRef.getReply(id));
+		});
 	}
 
 	public Set<TopicRef> getTopices() {

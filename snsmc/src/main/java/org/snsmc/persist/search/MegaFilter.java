@@ -61,6 +61,8 @@ public final class MegaFilter<T, P> extends FilterCondition<P>
 
 		outputQueue = Collections.asLifoQueue(new ArrayDeque<>());
 		operatorQueue = Collections.asLifoQueue(new ArrayDeque<>());
+
+		operatorQueue.add(OperatorType.BEGIN);
 	}
 
 	@Override
@@ -78,7 +80,7 @@ public final class MegaFilter<T, P> extends FilterCondition<P>
 	@Override
 	public <IMPL extends Filter> IMPL cast() {
 		@SuppressWarnings("unchecked")
-		IMPL impl =  (IMPL) this;
+		IMPL impl = (IMPL) this;
 		return impl;
 	}
 
@@ -88,7 +90,13 @@ public final class MegaFilter<T, P> extends FilterCondition<P>
 	}
 
 	@Override
-	public <G extends FilterTerminate<P> & FilterBinaryJuntion<P>, R extends FilterInitial<G> & FilterTerminate<G>> R begin() {
+	public <R extends FilterTerminate<P> & FilterBinaryJuntion<P>> R constant(boolean b) {
+		outputQueue.add(query -> query.raw(Boolean.toString(b)));
+		return castRespect();
+	}
+
+	@Override
+	public <G extends FilterTerminate<P> & FilterBinaryJuntion<P>, R extends FilterInitial<G> & FilterUnaryJuntion<G>> R begin() {
 		currentOperatorType = OperatorType.BEGIN;
 		appendOperator();
 		return castRespect();
@@ -150,7 +158,7 @@ public final class MegaFilter<T, P> extends FilterCondition<P>
 	}
 
 	@Override
-	public <R extends FilterInitial<P>> R not() {
+	public <R extends FilterInitial<P> & FilterUnaryJuntion<P>> R not() {
 		currentOperatorType = OperatorType.NOT;
 		appendOperator();
 		return castRespect();
@@ -208,8 +216,7 @@ public final class MegaFilter<T, P> extends FilterCondition<P>
 			operatorQueue.add(OperatorType.BEGIN);
 			break;
 		case END:
-			for (OperatorType operatorType; !Optional.ofNullable((operatorType = operatorQueue.poll()))
-				.map(OperatorType.BEGIN::equals).orElse(true);)
+			for (OperatorType operatorType; !(operatorType = operatorQueue.poll()).equals(OperatorType.BEGIN);)
 				appendOutput(operatorType);
 			if (operatorQueue.isEmpty())
 				if (outputQueue.size() == 1)
@@ -523,7 +530,7 @@ public final class MegaFilter<T, P> extends FilterCondition<P>
 		return megaFilter;
 	}
 
-	public static <R extends FilterInitial<Filter> & FilterTerminate<Filter>> R of() {
+	public static <R extends FilterInitial<Filter> & FilterUnaryJuntion<Filter>> R of() {
 		return new MegaFilter<>().castRespect();
 	}
 }
